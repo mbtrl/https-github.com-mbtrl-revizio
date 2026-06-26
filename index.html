@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Révizio</title>
+  <style>
+    :root {
+      --bg: #f4f2ff;
+      --surface: #ffffff;
+      --surface-strong: #f1ecff;
+      --text: #231f3f;
+      --muted: #696d8b;
+      --accent: #7B6EF6;
+      --accent-soft: rgba(123, 110, 246, 0.12);
+      --border: rgba(123, 110, 246, 0.18);
+      --card: drop-shadow(0 16px 40px rgba(118, 87, 255, 0.12));
+      --danger: #f14668;
+      --success: #1aab8b;
+      --gold: #d4af37;
+    }
+    .dark {
+      --bg: #11101e;
+      --surface: #171428;
+      --surface-strong: #221f36;
+      --text: #f7f6ff;
+      --muted: #a2a2c0;
+      --accent-soft: rgba(123, 110, 246, 0.16);
+      --border: rgba(255,255,255,0.08);
+      --card: drop-shadow(0 16px 40px rgba(0, 0, 0, 0.35));
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; font-family: "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    body { display: flex; justify-content: center; align-items: flex-start; padding: 24px 0; }
+    .app-shell { width: min(1120px, 100%); max-width: 1120px; padding: 0 24px 100px; }
+    header { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(14px); background: rgba( var(--bg-rgb, 244,242,255), 0.98); border-bottom: 1px solid rgba(123, 110, 246, 0.12); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; border-radius: 28px; margin-bottom: 14px; }
+    body.dark header { background: rgba(17,16,30,0.92); border-color: rgba(255,255,255,0.08); }
+    .top-buttons { display: flex; gap: 10px; }
+    .top-buttons button, .top-buttons span { border: none; background: transparent; color: var(--muted); font-size: 0.95rem; cursor: pointer; }
+    .top-buttons button:hover, .top-buttons span:hover { color: var(--text); }
+    .header-left, .header-right { display: flex; align-items: center; gap: 12px; }
+    .header-left { align-items: flex-start; }
+    .header-right { gap: 14px; }
+    .brand-icon { width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; background: rgba(123,110,246,0.15); color: var(--accent); font-size: 1.2rem; }
+    .page-title { margin: 0; font-size: 1.45rem; font-weight: 700; line-height: 1.1; }
+    .brand-subtitle { margin: 4px 0 0; font-size: 0.92rem; color: var(--muted); }
+    #adminToggle { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; border-radius: 999px; border: 1px solid transparent; background: rgba(123,110,246,0.08); color: var(--muted); cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
+    #adminToggle.admin-active { background: rgba(26,171,139,0.12); color: var(--success); border-color: rgba(26,171,139,0.24); }
+    main { padding: 0; max-width: 1120px; margin: 0 auto; }
+    .top-nav { display: grid; grid-auto-flow: column; gap: 10px; padding: 0 0 18px; overflow-x: auto; }
+    .top-nav button { min-width: 120px; border-radius: 18px; border: 1px solid transparent; background: var(--surface); color: var(--muted); padding: 12px 16px; white-space: nowrap; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: transform .15s ease, background .2s ease, color .2s ease, box-shadow .2s ease; }
+    .top-nav button:hover { transform: translateY(-1px); }
+    .top-nav button.active { background: var(--accent); color: #fff; box-shadow: 0 18px 40px rgba(123,110,246,0.16); }
+    .top-nav button span { font-size: 1rem; }
+    .hero-card { padding: 32px 32px 30px; border-radius: 32px; background: linear-gradient(180deg, rgba(123,110,246,0.16) 0%, rgba(255,255,255,0.96) 100%); border: 1px solid rgba(123,110,246,0.16); }
+    .hero-card h1 { margin: 18px 0 12px; font-size: clamp(2.2rem, 6vw, 3rem); line-height: 1.05; }
+    .hero-card .subtitle { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.7; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: rgba(123,110,246,0.14); color: var(--accent); font-size: 0.94rem; margin-bottom: 14px; }
+    .section-step { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 999px; background: var(--accent); color: #fff; font-weight: 700; margin-bottom: 14px; }
+    .subject-button.active { background: var(--accent); color: #fff; border-color: transparent; }
+    .group-label { margin: 20px 0 8px; font-size: 0.78rem; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; }
+    .button-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .button-grid.five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .button-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .button-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .button-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .button-outline { background: var(--surface); color: var(--text); border-color: rgba(123,110,246,0.14); }
+    .button-outline.active { background: rgba(123,110,246,0.12); color: var(--accent); border-color: rgba(123,110,246,0.24); }
+    @media (max-width: 1100px) {
+      .app-shell { width: min(96vw, 100%); }
+      .button-grid.five { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .button-grid.four { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .button-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 900px) {
+      .app-shell { padding: 0 16px 88px; }
+      header { padding: 16px 16px; }
+      .top-nav { gap: 8px; }
+      .button-grid.five { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .button-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .button-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .button-grid.two { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      .header-left, .header-right { width: 100%; justify-content: space-between; }
+    }
+    @media (max-width: 520px) {
+      body { padding: 12px 0; }
+      header { padding: 14px 12px; border-radius: 24px; }
+      .page-title { font-size: 1.15rem; }
+    }
+    @media (max-width: 520px) {
+      body { padding: 12px 0; }
+      header { padding: 14px 12px; border-radius: 24px; }
+      .page-title { font-size: 1.15rem; }
+    }
+    .section-card, .card { background: var(--surface); border-radius: 24px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--card); margin-bottom: 16px; }
+    .section-card h2, .card h3 { margin: 0 0 12px; font-size: 1rem; }
+    .grid { display: grid; gap: 12px; }
+    .button-grid { display: grid; gap: 12px; }
+    .button-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    button, .pill { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 16px; border: 1px solid transparent; background: var(--accent); color: #fff; padding: 14px 16px; font-size: 0.96rem; cursor: pointer; transition: transform .12s ease, background .2s ease; }
+    button:hover, .pill:hover { transform: translateY(-1px); }
+    .button-outline { background: transparent; color: var(--text); border-color: var(--border); }
+    .button-soft { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+    .subject-button { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--surface-strong); color: var(--text); border-radius: 20px; border: 1px solid var(--border); }
+    .badge { background: rgba(123, 110, 246, 0.1); color: var(--accent); padding: 6px 10px; border-radius: 999px; font-size: 0.86rem; }
+    input, textarea, select { width: 100%; border-radius: 16px; border: 1px solid var(--border); background: var(--surface-strong); color: var(--text); padding: 12px 14px; font: inherit; resize: vertical; }
+    textarea { min-height: 120px; }
+    .alert { padding: 14px 16px; border-radius: 18px; background: rgba(241, 236, 255, 0.9); color: var(--text); border: 1px solid rgba(123, 110, 246, 0.16); margin-bottom: 16px; }
+    .small-note { font-size: 0.84rem; color: var(--muted); }
+    .result-line { display: flex; justify-content: space-between; gap: 10px; margin: 8px 0; padding: 12px 14px; border-radius: 16px; background: var(--surface-strong); border: 1px solid var(--border); }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; place-items: center; padding: 16px; z-index: 50; }
+    .modal-backdrop.active { display: grid; }
+    .modal { width: min(420px, 100%); background: var(--surface); border-radius: 28px; padding: 22px; border: 1px solid var(--border); box-shadow: var(--card); }
+    .modal h2 { margin-top:0; }
+    .modal-close { background: transparent; border: none; font-size: 1.3rem; position: absolute; top: 18px; right: 20px; color: var(--muted); cursor: pointer; }
+    .modal-header { position: relative; margin-bottom: 16px; }
+    .premium-banner { display: flex; gap: 12px; align-items: center; padding: 16px; border-radius: 22px; background: linear-gradient(135deg, #fff7dc, #f9e5a0); border: 1px solid rgba(212,175,55,.3); color: #4f3b0f; margin-bottom: 16px; }
+    .gold-dot { width: 10px; height: 10px; border-radius: 50%; background: #d4af37; }
+    .hidden { display: none !important; }
+    .center { text-align: center; }
+    @media (max-width: 520px) {
+      header { padding: 14px 12px; }
+      .app-shell { padding-bottom: 108px; }
+      .modal { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="header-left">
+        <div class="brand-icon">🎓</div>
+        <div>
+          <p class="page-title">Révizio</p>
+          <p class="brand-subtitle">Révisions intelligentes par IA</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="themeToggle" aria-label="Changer de thème">🌗</button>
+        <span id="adminToggle">admin</span>
+      </div>
+    </header>
+    <div class="top-nav" id="topNav"></div>
+    <main id="appContent"></main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h2 id="modalTitle">Connexion admin</h2>
+        <button class="modal-close" id="modalClose">×</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = 'martin91011';
+    const SUBJECTS = {
+      primaire: [
+        { name: 'Français', icon: '📖' },
+        { name: 'Maths', icon: '🔢' },
+        { name: 'Histoire-Géo', icon: '🌍' },
+        { name: 'Sciences', icon: '🔬' },
+        { name: 'Anglais', icon: '🇬🇧' }
+      ],
+      college: [
+        { name: 'Français', icon: '📖' },
+        { name: 'Maths', icon: '🔢' },
+        { name: 'Histoire-Géo', icon: '🌍' },
+        { name: 'Sciences', icon: '🔬' },
+        { name: 'Anglais', icon: '🇬🇧' },
+        { name: 'SVT', icon: '🌿' },
+        { name: 'Physique-Chimie', icon: '⚗️' },
+        { name: 'Espagnol', icon: '🇪🇸' }
+      ],
+      lycee: [
+        { name: 'Français', icon: '📖' },
+        { name: 'Maths', icon: '🔢' },
+        { name: 'Histoire-Géo', icon: '🌍' },
+        { name: 'Sciences', icon: '🔬' },
+        { name: 'Anglais', icon: '🇬🇧' },
+        { name: 'SVT', icon: '🌿' },
+        { name: 'Physique-Chimie', icon: '⚗️' },
+        { name: 'Espagnol', icon: '🇪🇸' },
+        { name: 'Philosophie', icon: '🧠' },
+        { name: 'SES', icon: '📈' },
+        { name: 'NSI', icon: '💻' }
+      ]
+    };
+    const LEVELS = [
+      { label: 'CP', group: 'primaire', target: 'Primaire' },
+      { label: 'CE1', group: 'primaire', target: 'Primaire' },
+      { label: 'CE2', group: 'primaire', target: 'Primaire' },
+      { label: 'CM1', group: 'primaire', target: 'Primaire' },
+      { label: 'CM2', group: 'primaire', target: 'Primaire' },
+      { label: '6e', group: 'college', target: 'Collège' },
+      { label: '5e', group: 'college', target: 'Collège' },
+      { label: '4e', group: 'college', target: 'Collège' },
+      { label: '3e', group: 'college', target: 'Collège' },
+      { label: 'Seconde', group: 'lycee', target: 'Lycée' },
+      { label: 'Première', group: 'lycee', target: 'Lycée' },
+      { label: 'Terminale', group: 'lycee', target: 'Lycée' }
+    ];
+
+    const PAGES = [
+      { key: 'home', label: 'Accueil', icon: '🏠' },
+      { key: 'quiz', label: 'Quiz', icon: '❓' },
+      { key: 'fiches', label: 'Fiches', icon: '📝' },
+      { key: 'flashcards', label: 'Flashcards', icon: '🔁' },
+      { key: 'assistant', label: 'Devoirs', icon: '🧠' },
+      { key: 'eval', label: 'Éval', icon: '🧪' },
+      { key: 'progress', label: 'Progrès', icon: '📊' }
+    ];
+
+    const state = {
+      page: 'home',
+      selectedLevel: 'CP',
+      selectedGroup: 'primaire',
+      selectedSubject: 'Français',
+      selectedMode: 'normal',
+      assistantMode: 'expliquer',
+      quiz: null,
+      quizIndex: 0,
+      quizScore: 0,
+      ficheText: '',
+      flashcards: null,
+      flashcardIndex: 0,
+      flashcardAnswers: [],
+      evalQuestions: null,
+      evalAnswers: {},
+      evalScore: null,
+      assistantHistory: [],
+      adminMode: localStorage.getItem('revizioAdmin') === 'true',
+      premiumUnlocked: false,
+      progress: JSON.parse(localStorage.getItem('revizioProgress') || '{}')
+    };
+
+    const appContent = document.getElementById('appContent');
+    const themeToggle = document.getElementById('themeToggle');
+    const adminToggle = document.getElementById('adminToggle');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalClose = document.getElementById('modalClose');
+    const modalBody = document.getElementById('modalBody');
+
+    function init() {
+      applyTheme();
+      renderNav();
+      renderPage();
+      adminToggle.addEventListener('click', openAdminModal);
+      themeToggle.addEventListener('click', toggleTheme);
+      modalClose.addEventListener('click', closeModal);
+      modalBackdrop.addEventListener('click', (event) => {
+        if (event.target === modalBackdrop) closeModal();
+      });
+      updateAdminToggle();
+      if (!state.progress.stats) {
+        state.progress = { stats: { quizCompleted: 0, scoreTotal: 0, bestScore: 0, fichesGenerated: 0 }, history: [] };
+      }
+      saveProgress();
+    }
+
+    function saveProgress() {
+      localStorage.setItem('revizioProgress', JSON.stringify(state.progress));
+    }
+
+    function updateAdminToggle() {
+      adminToggle.textContent = state.adminMode ? 'admin ✅' : 'admin';
+      adminToggle.classList.toggle('admin-active', state.adminMode);
+    }
+
+    function applyTheme() {
+      const dark = localStorage.getItem('revizioTheme') === 'dark';
+      document.body.classList.toggle('dark', dark);
+      if (dark) {
+        themeToggle.textContent = '☀️';
+      } else {
+        themeToggle.textContent = '🌙';
+      }
+      const root = document.documentElement;
+      const bg = getComputedStyle(document.body).backgroundColor;
+      const rgb = bg.match(/\d+,\s*\d+,\s*\d+/);
+      if (rgb) root.style.setProperty('--bg-rgb', rgb[0]);
+    }
+
+    function toggleTheme() {
+      const dark = !document.body.classList.contains('dark');
+      localStorage.setItem('revizioTheme', dark ? 'dark' : 'light');
+      applyTheme();
+    }
+
+    function renderNav() {
+      const topNav = document.getElementById('topNav');
+      if (topNav) {
+        topNav.innerHTML = PAGES.map(page => `
+          <button class="${state.page === page.key ? 'active' : ''}" onclick="selectPage('${page.key}')">
+            <span>${page.icon}</span>${page.label}
+          </button>
+        `).join('');
+      }
+    }
+
+    function selectPage(page) {
+      state.page = page;
+      renderNav();
+      renderPage();
+    }
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function baseWords(text) {
+      return text.toLowerCase().replace(/[^a-zàâçéèêëîïôûùüÿñæœ\s]/gi, '').split(/\s+/).filter(Boolean);
+    }
+
+    function generateLocalQuiz(count) {
+      const questions = [];
+      for (let i = 0; i < count; i += 1) {
+        questions.push(generateSubjectQuestion(state.selectedSubject, state.selectedLevel, i + 1));
+      }
+      return { questions };
+    }
+
+    function generateSubjectQuestion(subject, level, index) {
+      const questions = {
+        'Français': [
+          {
+            question: "Dans la phrase « Elle lit un roman. », quelle est la fonction du mot « roman » ?",
+            options: ["Sujet", "Complément d'objet", "Attribut", "Adjectif"],
+            answer: "Complément d'objet",
+            explanation: "« roman » répond à la question « Elle lit quoi ? »."
+          },
+          {
+            question: "Quel temps est utilisé dans « Nous avons fini le travail » ?",
+            options: ["Présent", "Passé composé", "Imparfait", "Futur simple"],
+            answer: "Passé composé",
+            explanation: "L'action est terminée et on utilise « avons fini »."
+          },
+          {
+            question: "Quelle phrase contient un adjectif ?",
+            options: ["Il marche vite.", "La maison est grande.", "Elle chante.", "Il court."],
+            answer: "La maison est grande.",
+            explanation: "« grande » décrit la maison, c'est un adjectif."
+          }
+        ],
+        'Maths': [
+          {
+            question: "Si tu as 7 pommes et que tu en donnes 3, combien en restes-tu ?",
+            options: ["4", "5", "3", "2"],
+            answer: "4",
+            explanation: "7 - 3 = 4."
+          },
+          {
+            question: "Quel est le résultat de 6 × 5 ?",
+            options: ["30", "11", "35", "25"],
+            answer: "30",
+            explanation: "Multiplier 6 par 5 donne 30."
+          },
+          {
+            question: "Quelle fraction est équivalente à 1/2 ?",
+            options: ["2/4", "1/3", "3/4", "2/3"],
+            answer: "2/4",
+            explanation: "2/4 vaut aussi 0,5, comme 1/2."
+          }
+        ],
+        'Histoire-Géo': [
+          {
+            question: "Quel est le principal fleuve de la France ?",
+            options: ["La Loire", "La Seine", "Le Rhône", "La Garonne"],
+            answer: "La Seine",
+            explanation: "La Seine traverse Paris et est le fleuve principal mentionné."
+          },
+          {
+            question: "Quel continent est la France ?",
+            options: ["Asie", "Amérique", "Europe", "Afrique"],
+            answer: "Europe",
+            explanation: "La France se trouve en Europe."
+          },
+          {
+            question: "Quel est le rôle d’une carte ?",
+            options: ["Raconter une histoire", "Montrer un relief", "Dessiner un paysage", "Indiquer des distances"],
+            answer: "Indiquer des distances",
+            explanation: "Une carte aide à lire des routes et des distances."
+          }
+        ],
+        'Sciences': [
+          {
+            question: "Quel organe pompe le sang ?",
+            options: ["Le cerveau", "Le foie", "Le cœur", "L’estomac"],
+            answer: "Le cœur",
+            explanation: "Le cœur est la pompe du système circulatoire."
+          },
+          {
+            question: "De quoi une plante a-t-elle besoin pour vivre ?",
+            options: ["Lumière", "Chocolat", "Jeu", "Télévision"],
+            answer: "Lumière",
+            explanation: "La lumière permet la photosynthèse chez la plante."
+          },
+          {
+            question: "Quel état de l’eau est liquide ?",
+            options: ["Neige", "Glace", "Vapeur", "Eau"],
+            answer: "Eau",
+            explanation: "L’eau est l’état liquide de H₂O."
+          }
+        ],
+        'Anglais': [
+          {
+            question: "How do you say « bonjour » in English ?",
+            options: ["Hello", "Bye", "Thanks", "Please"],
+            answer: "Hello",
+            explanation: "« Bonjour » se traduit par « Hello »."
+          },
+          {
+            question: "Which word is a color ?",
+            options: ["Blue", "Run", "Cat", "Eat"],
+            answer: "Blue",
+            explanation: "« Blue » est une couleur."
+          },
+          {
+            question: "What is the English word for « chat » ?",
+            options: ["Dog", "Cat", "Bird", "Fish"],
+            answer: "Cat",
+            explanation: "« Chat » se dit « Cat »."
+          }
+        ],
+        'SVT': [
+          {
+            question: "Quel est l’organe qui aide à respirer ?",
+            options: ["Le cœur", "Le poumon", "L’estomac", "Le rein"],
+            answer: "Le poumon",
+            explanation: "Le poumon est utilisé pour respirer."
+          },
+          {
+            question: "Quelle partie d’une plante attire la lumière ?",
+            options: ["La racine", "La tige", "La feuille", "La fleur"],
+            answer: "La feuille",
+            explanation: "La feuille capte la lumière pour faire de la photosynthèse."
+          }
+        ],
+        'Physique-Chimie': [
+          {
+            question: "L’eau bout à quelle température approximative ?",
+            options: ["100°C", "0°C", "50°C", "25°C"],
+            answer: "100°C",
+            explanation: "L’eau pure bout à 100°C au niveau de la mer."
+          },
+          {
+            question: "Quelle est la formule chimique de l’eau ?",
+            options: ["CO2", "O2", "H2O", "NaCl"],
+            answer: "H2O",
+            explanation: "L’eau est composée de deux atomes d’hydrogène et un atome d’oxygène."
+          }
+        ],
+        'Espagnol': [
+          {
+            question: "Comment dit-on « merci » en espagnol ?",
+            options: ["Gracias", "Bonjour", "Adiós", "Por favor"],
+            answer: "Gracias",
+            explanation: "« Merci » se dit « Gracias »."
+          },
+          {
+            question: "Quel mot signifie « oui » ?",
+            options: ["No", "Sí", "Hola", "Adiós"],
+            answer: "Sí",
+            explanation: "« Sí » veut dire « oui »."
+          }
+        ],
+        'Philosophie': [
+          {
+            question: "Qu’est-ce que la conscience ?",
+            options: ["Un animal", "Une idée", "La capacité à penser", "Un livre"],
+            answer: "La capacité à penser",
+            explanation: "La conscience désigne le fait de percevoir et de penser."
+          },
+          {
+            question: "Quel mot correspond à une réflexion sur la vie ?",
+            options: ["Émotion", "Penser", "Rêver", "Dormir"],
+            answer: "Penser",
+            explanation: "La philosophie invite à réfléchir et penser."
+          }
+        ],
+        'SES': [
+          {
+            question: "Que mesure le revenu ?",
+            options: ["La colère", "L’argent gagné", "La vitesse", "La taille"],
+            answer: "L’argent gagné",
+            explanation: "Le revenu est ce que l’on gagne."
+          },
+          {
+            question: "Qu’est-ce qu’un besoin ?",
+            options: ["Un désir", "Une nécessité", "Un nombre", "Un animal"],
+            answer: "Une nécessité",
+            explanation: "Un besoin est ce dont on a besoin pour vivre."
+          }
+        ],
+        'NSI': [
+          {
+            question: "Quel symbole est utilisé pour écrire une fonction en JavaScript ?",
+            options: ["function", "var", "if", "else"],
+            answer: "function",
+            explanation: "On utilise le mot-clé function pour définir une fonction."
+          },
+          {
+            question: "Quel type de données peut stocker du texte ?",
+            options: ["Number", "String", "Boolean", "Array"],
+            answer: "String",
+            explanation: "String est le type texte en programmation."
+          }
+        ]
+      };
+      const list = questions[subject] || questions['Français'];
+      const item = list[(index - 1) % list.length];
+      return { ...item };
+    }
+function generateLocalFiche(subject, level) {
+      const sections = {
+        'Français': `## ${subject} - Fiche de révision\n\n**Grammaire**\n- Identifie le sujet, le verbe et le complément.\n- Les adjectifs qualifient les noms.\n\n**Orthographe**\n- Fais attention aux accords.\n\n> Point difficile : bien distinguer le verbe et l’auxiliaire.`,
+        'Maths': `## ${subject} - Fiche de révision\n\n**Calcul**\n- Addition, soustraction, multiplication, division.\n- Résous les problèmes pas à pas.\n\n**Géométrie**\n- Repère les figures et les angles.\n\n> Point difficile : bien poser les opérations.`,
+        'Histoire-Géo': `## ${subject} - Fiche de révision\n\n**Histoire**\n- Dates clés à retenir.\n- Comprends les grandes périodes.\n\n**Géographie**\n- Localise les pays et les continents.\n\n> Point difficile : retenir les noms des fleuves et capitales.`,
+        'Sciences': `## ${subject} - Fiche de révision\n\n**Corps vivant**\n- Les fonctions principales : respirer, digérer, circuler.\n\n**Expériences**\n- Observe et décris.\n\n> Point difficile : comprendre les changements d’état de la matière.`,
+        'Anglais': `## ${subject} - Fiche de révision\n\n**Vocabulaire**\n- Bonjour = Hello, merci = Thank you.\n- Les couleurs, nombres, jours.\n\n**Grammaire**\n- Sujet + verbe + complément.\n\n> Point difficile : bien prononcer les mots.`,
+        'SVT': `## ${subject} - Fiche de révision\n\n**Biologie**\n- Les fonctions de base du vivant.\n- Cycle de vie des plantes.\n\n> Point difficile : différencier plante et animal.`,
+        'Physique-Chimie': `## ${subject} - Fiche de révision\n\n**Physique**\n- L’énergie, la force et la chaleur.\n\n**Chimie**\n- L’eau, l’air et les mélanges.\n\n> Point difficile : connaître les symboles chimiques simples.`,
+        'Espagnol': `## ${subject} - Fiche de révision\n\n**Vocabulaire**\n- Merci = Gracias, oui = Sí.\n- Les salutations et les couleurs.\n\n> Point difficile : l’accent sur « sí ».`,
+        'Philosophie': `## ${subject} - Fiche de révision\n\n**Idées clés**\n- La réflexion sur soi et le monde.\n- Questionne ce que tu vois.\n\n> Point difficile : répondre avec des phrases complètes.`,
+        'SES': `## ${subject} - Fiche de révision\n\n**Économie**\n- Un revenu est de l’argent gagné.\n- Une dépense est ce que l’on paie.\n\n> Point difficile : distinguer besoin et envie.`,
+        'NSI': `## ${subject} - Fiche de révision\n\n**Informatique**\n- Un programme suit des instructions.\n- Une fonction réalise une tâche.\n\n> Point difficile : comprendre la logique conditionnelle.`
+      };
+      return sections[subject] || sections['Français'];
+    }
+
+    function generateLocalFlashcards(subject) {
+      const cards = {
+        'Français': [
+          { front: 'Qu’est-ce qu’un adjectif ?', back: 'Un mot qui décrit un nom.' },
+          { front: 'Donne un synonyme de « grand ».', back: 'Énorme, vaste, large.' }
+        ],
+        'Maths': [
+          { front: '7 + 5 = ?', back: '12' },
+          { front: '5 × 4 = ?', back: '20' }
+        ],
+        'Histoire-Géo': [
+          { front: 'Quel est le continent de la France ?', back: 'Europe' },
+          { front: 'Nom d’un grand fleuve français.', back: 'La Seine' }
+        ],
+        'Sciences': [
+          { front: 'Quel organe pompe le sang ?', back: 'Le cœur' },
+          { front: 'L’eau est un état de la matière ?', back: 'Liquide' }
+        ],
+        'Anglais': [
+          { front: 'Hello en français ?', back: 'Bonjour' },
+          { front: 'Cat signifie ?', back: 'Chat' }
+        ],
+        'SVT': [
+          { front: 'Quelle partie de la plante capte la lumière ?', back: 'La feuille' },
+          { front: 'Un animal qui respire avec des poumons ?', back: 'Le chat' }
+        ],
+        'Physique-Chimie': [
+          { front: 'Température d’ébullition de l’eau ?', back: '100°C' },
+          { front: 'Formule de l’eau ?', back: 'H2O' }
+        ],
+        'Espagnol': [
+          { front: 'Gracias signifie ?', back: 'Merci' },
+          { front: 'Oui en espagnol ?', back: 'Sí' }
+        ],
+        'Philosophie': [
+          { front: 'Qu’est-ce que la philosophie ?', back: 'La réflexion sur le monde.' },
+          { front: 'Penser, c’est ?', back: 'Réfléchir.' }
+        ],
+        'SES': [
+          { front: 'Qu’est-ce que le revenu ?', back: 'L’argent gagné.' },
+          { front: 'Qu’est-ce qu’un besoin ?', back: 'Ce dont on a besoin.' }
+        ],
+        'NSI': [
+          { front: 'Que fait une fonction ?', back: 'Elle exécute des instructions.' },
+          { front: 'Type texte en code ?', back: 'String' }
+        ]
+      };
+      return cards[subject] ? Array.from({ length: 15 }, (_, index) => cards[subject][index % cards[subject].length]) : Array.from({ length: 15 }, (_, index) => ({ front: `Question ${index + 1}`, back: 'Réponse' }));
+    }
+
+    function generateLocalEval(subject, level, count) {
+      const items = [];
+      for (let i = 1; i <= count; i += 1) {
+        items.push({ question: `Question ${i} de ${subject} pour ${level}. Explique en quelques lignes.`, answer: `Réponse attendue sur ${subject}.` });
+      }
+      return { questions: items };
+    }
+
+    function gradeEvalLocal(answers) {
+      let score = 0;
+      const total = answers.length;
+      answers.forEach((item) => {
+        const student = (item.student || '').toLowerCase();
+        const correct = (item.correct || '').toLowerCase();
+        const keywords = baseWords(correct).slice(0, 3);
+        const matched = keywords.filter(word => student.includes(word)).length;
+        if (matched >= 2) score += 20 / total;
+        else if (matched === 1) score += 10 / total;
+      });
+      score = Math.round(score * 10) / 10;
+      if (score > 20) score = 20;
+      return {
+        score: score || 4,
+        appreciation: score >= 16 ? 'Excellent travail !' : score >= 12 ? 'Bon travail, continue comme ça.' : 'Revois tes réponses et retente encore.'
+      };
+    }
+
+    function assistantLocal(mode, input) {
+      const text = input.trim();
+      if (!text) return 'Écris une question ou colle ton exercice pour obtenir de l’aide.';
+      if (mode === 'corriger') {
+        return `Je corrige : ${text.slice(0, 120)}... \n\nVérifie les points suivants : structure claire, réponse complète et orthographe.`;
+      }
+      if (mode === 'indice') {
+        return `Indice : Commence par repérer les données importantes, puis applique-les étape par étape.`;
+      }
+      if (mode === 'etapes') {
+        return `Étapes : 1) Lis l’énoncé. 2) Trouve les données. 3) Formule une méthode. 4) Vérifie ta réponse.`;
+      }
+      return `Explication : ${text.slice(0, 120)}... \n\nEssaie de réutiliser les mots-clés et de faire des phrases simples.`;
+    }
+
+    function renderPage() {
+      switch (state.page) {
+        case 'quiz': return renderQuizPage();
+        case 'fiches': return renderFichesPage();
+        case 'flashcards': return renderFlashcardsPage();
+        case 'assistant': return renderAssistantPage();
+        case 'eval': return renderEvalPage();
+        case 'progress': return renderProgressPage();
+        default: return renderHomePage();
+      }
+    }
+
+    function renderHomePage() {
+      appContent.innerHTML = `
+        <div class="section-card hero-card">
+          <span class="hero-badge">✨ Révisions intelligentes par IA</span>
+          <h1>Bienvenue sur <span style="color: var(--accent);">Révizio</span></h1>
+          <p class="subtitle">Quiz, fiches de révision et suivi de progression — du CP à la Terminale, dans toutes les matières.</p>
+        </div>
+        <div class="section-card">
+          <div class="section-step">1</div>
+          <h2>Choisis ton niveau</h2>
+          <div class="group-label">Primaire</div>
+          <div class="button-grid five">
+            ${LEVELS.filter(l => l.group === 'primaire').map(level => `
+              <button class="button-outline ${state.selectedLevel === level.label ? 'active' : ''}" onclick="selectLevel('${level.label}')">
+                ${level.label}
+              </button>
+            `).join('')}
+          </div>
+          <div class="group-label">Collège</div>
+          <div class="button-grid four">
+            ${LEVELS.filter(l => l.group === 'college').map(level => `
+              <button class="button-outline ${state.selectedLevel === level.label ? 'active' : ''}" onclick="selectLevel('${level.label}')">
+                ${level.label}
+              </button>
+            `).join('')}
+          </div>
+          <div class="group-label">Lycée</div>
+          <div class="button-grid three">
+            ${LEVELS.filter(l => l.group === 'lycee').map(level => `
+              <button class="button-outline ${state.selectedLevel === level.label ? 'active' : ''}" onclick="selectLevel('${level.label}')">
+                ${level.label}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2>Matière</h2>
+          <div class="button-grid three">
+            ${SUBJECTS[state.selectedGroup].map(subject => `
+              <button class="subject-button ${state.selectedSubject === subject.name ? 'active' : ''}" onclick="selectSubject('${subject.name}')">
+                <span>${subject.name}</span>
+                <span>${subject.icon}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="section-card center">
+          <p class="badge">${state.selectedLevel} • ${state.selectedSubject}</p>
+          <p class="small-note">Utilise le menu en haut pour naviguer entre quiz, fiches, flashcards, devoirs, éval et progrès.</p>
+        </div>
+      `;
+    }
+
+    function selectLevel(label) {
+      const level = LEVELS.find(l => l.label === label);
+      if (!level) return;
+      state.selectedLevel = label;
+      state.selectedGroup = level.group;
+      state.selectedSubject = SUBJECTS[level.group][0].name;
+      renderPage();
+    }
+
+    function selectSubject(subject) {
+      state.selectedSubject = subject;
+      renderPage();
+    }
+
+    function renderQuizPage() {
+      appContent.innerHTML = `
+        <div class="section-card">
+          <h2>Quiz IA</h2>
+          <div class="button-grid two">
+            <button onclick="prepareQuiz('normal')">Mode normal (10 questions)</button>
+            <button onclick="prepareQuiz('intensif')">Mode intensif (30 questions)</button>
+          </div>
+          <p class="small-note">Matière : ${state.selectedSubject} • Niveau : ${state.selectedLevel}</p>
+        </div>
+        <div id="quizArea"></div>
+      `;
+      if (state.quiz) renderQuizArea();
+    }
+
+    function renderQuizArea() {
+      const current = state.quiz.questions[state.quizIndex];
+      const options = current.options.map((option, index) => `
+        <button class="button-outline" onclick="answerQuiz(${index})">${option}</button>
+      `).join('');
+      appContent.querySelector('#quizArea').innerHTML = `
+        <div class="section-card">
+          <h3>Question ${state.quizIndex + 1}/${state.quiz.questions.length}</h3>
+          <p>${current.question}</p>
+          <div class="button-grid">${options}</div>
+          <div id="quizFeedback"></div>
+          <div class="result-line">
+            <span>Score : ${state.quizScore}</span>
+            <span>${state.quiz.correctCount || 0} bonnes réponses</span>
+          </div>
+        </div>
+      `;
+    }
+
+    async function prepareQuiz(mode) {
+      state.selectedMode = mode;
+      const count = mode === 'intensif' ? 30 : 10;
+      appContent.querySelector('#quizArea').innerHTML = `<div class="alert">Génération du quiz... Patientez.</div>`;
+      try {
+        const parsed = generateLocalQuiz(count);
+        state.quiz = { questions: parsed.questions.map(q => ({ ...q, revealed: false })), correctCount: 0 };
+        state.quizIndex = 0;
+        state.quizScore = 0;
+        renderQuizPage();
+      } catch (error) {
+        appContent.querySelector('#quizArea').innerHTML = `<div class="alert">Impossible de générer le quiz. Réessaie plus tard.</div>`;
+      }
+    }
+
+    function answerQuiz(choiceIndex) {
+      const current = state.quiz.questions[state.quizIndex];
+      const correct = current.options[choiceIndex] === current.answer;
+      if (correct) {
+        state.quizScore += 1;
+        state.quiz.correctCount += 1;
+      }
+      current.revealed = true;
+      state.quizAreaFeedback = `
+        <div class="section-card">
+          <p><strong>Bonne réponse :</strong> ${current.answer}</p>
+          <p><strong>${correct ? '✅ Correct' : '❌ Faux'}</strong></p>
+          <p>${current.explanation}</p>
+        </div>
+      `;
+      renderQuizArea();
+      const feedback = document.getElementById('quizFeedback');
+      feedback.innerHTML = state.quizAreaFeedback + `
+        <button class="button-soft" onclick="quizNext()">${state.quizIndex + 1 < state.quiz.questions.length ? 'Question suivante' : 'Voir le score'}</button>
+      `;
+    }
+
+    function quizNext() {
+      if (state.quizIndex + 1 >= state.quiz.questions.length) {
+        completeQuiz();
+      } else {
+        state.quizIndex += 1;
+        renderQuizArea();
+      }
+    }
+
+    function completeQuiz() {
+      const total = state.quiz.questions.length;
+      const score = state.quizScore;
+      const average = ((state.progress.stats.scoreTotal || 0) + score) / ((state.progress.stats.quizCompleted || 0) + 1);
+      state.progress.stats.quizCompleted = (state.progress.stats.quizCompleted || 0) + 1;
+      state.progress.stats.scoreTotal = (state.progress.stats.scoreTotal || 0) + score;
+      state.progress.stats.bestScore = Math.max(state.progress.stats.bestScore || 0, score);
+      state.progress.history.unshift({ type: 'Quiz', subject: state.selectedSubject, level: state.selectedLevel, score, total, date: new Date().toLocaleString() });
+      if (state.progress.history.length > 12) state.progress.history.pop();
+      saveProgress();
+      appContent.querySelector('#quizArea').innerHTML = `
+        <div class="section-card center">
+          <h2>Score final</h2>
+          <p class="badge">${score}/${total}</p>
+          <p>${Math.round((score / total) * 100)}% de bonnes réponses</p>
+          <p>Bravo, tu as terminé le quiz !</p>
+          <button onclick="renderPage()">Retour</button>
+        </div>
+      `;
+      state.quiz = null;
+    }
+
+    function renderFichesPage() {
+      appContent.innerHTML = `
+        <div class="section-card">
+          <h2>Fiches de révision</h2>
+          <p>Génère une fiche structurée en markdown pour ${state.selectedSubject}.</p>
+          <button type="button" onclick="generateFiche()">Générer ma fiche</button>
+        </div>
+        <div id="ficheArea"></div>
+      `;
+      if (state.ficheText) {
+        appContent.querySelector('#ficheArea').innerHTML = `
+          <div class="section-card">
+            <pre style="white-space: pre-wrap; font-family: ui-monospace, monospace;">${escapeHtml(state.ficheText)}</pre>
+          </div>
+        `;
+      }
+    }
+
+    async function generateFiche() {
+      const area = document.getElementById('ficheArea');
+      if (area) area.innerHTML = `<div class="alert">Génération de la fiche... Patientez.</div>`;
+      try {
+        state.ficheText = generateLocalFiche(state.selectedSubject, state.selectedLevel);
+        state.progress.stats.fichesGenerated = (state.progress.stats.fichesGenerated || 0) + 1;
+        state.progress.history.unshift({ type: 'Fiche', subject: state.selectedSubject, level: state.selectedLevel, date: new Date().toLocaleString() });
+        if (state.progress.history.length > 12) state.progress.history.pop();
+        saveProgress();
+        renderFichesPage();
+      } catch (error) {
+        if (area) area.innerHTML = `<div class="alert">Impossible de générer la fiche. Réessaie plus tard.</div>`;
+      }
+    }
+
+    function renderFlashcardsPage() {
+      const card = state.flashcards ? state.flashcards[state.flashcardIndex] : null;
+      appContent.innerHTML = `
+        <div class="section-card">
+          <h2>Flashcards</h2>
+          <p>15 cartes recto/verso pour réviser.</p>
+          <button onclick="generateFlashcards()">Créer des flashcards</button>
+        </div>
+        <div id="flashcardArea"></div>
+      `;
+      if (card) {
+        appContent.querySelector('#flashcardArea').innerHTML = `
+          <div class="section-card center">
+            <h3>Carte ${state.flashcardIndex + 1}/${state.flashcards.length}</h3>
+            <p><strong>Question :</strong></p>
+            <p>${card.front}</p>
+            <div class="button-grid two">
+              <button onclick="flashcardAnswer(true)">Je sais ✅</button>
+              <button onclick="flashcardAnswer(false)">À revoir ↩</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    async function generateFlashcards() {
+      const area = document.getElementById('flashcardArea');
+      area.innerHTML = `<div class="alert">Création des flashcards... Patientez.</div>`;
+      try {
+        state.flashcards = generateLocalFlashcards(state.selectedSubject);
+        state.flashcardIndex = 0;
+        state.flashcardAnswers = [];
+        renderFlashcardsPage();
+      } catch (error) {
+        area.innerHTML = `<div class="alert">Impossible de générer les flashcards. Réessaie plus tard.</div>`;
+      }
+    }
+
+    function flashcardAnswer(known) {
+      const card = state.flashcards[state.flashcardIndex];
+      state.flashcardAnswers.push({ card, known });
+      const reveal = `\n\n<strong>Réponse :</strong> ${card.back}`;
+      const area = document.getElementById('flashcardArea');
+      area.innerHTML = `
+        <div class="section-card">
+          <p>${card.front}</p>
+          <p>${reveal}</p>
+          <div class="button-grid two">
+            <button onclick="flashcardNext()">Suivant</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function flashcardNext() {
+      state.flashcardIndex += 1;
+      if (state.flashcardIndex >= state.flashcards.length) {
+        const knownCount = state.flashcardAnswers.filter(item => item.known).length;
+        const rate = Math.round((knownCount / state.flashcardAnswers.length) * 100);
+        appContent.querySelector('#flashcardArea').innerHTML = `
+          <div class="section-card center">
+            <h2>Résultat final</h2>
+            <p class="badge">${knownCount}/${state.flashcards.length}</p>
+            <p>Taux de réussite : ${rate}%</p>
+          </div>
+        `;
+      } else {
+        renderFlashcardsPage();
+      }
+    }
+
+    function renderEvalPage() {
+      appContent.innerHTML = `
+        <div class="section-card">
+          <h2>Évaluations</h2>
+          <div class="button-grid three">
+            <button type="button" onclick="prepareEval(3)">DS 3 questions</button>
+            <button type="button" onclick="prepareEval(5)">DS 5 questions</button>
+            <button type="button" onclick="prepareEval(8)">DS 8 questions</button>
+            <button type="button" onclick="prepareEval(10)">DS 10 questions</button>
+          </div>
+          <p class="small-note">Les travaux sont corrigés automatiquement avec note /20.</p>
+        </div>
+        <div id="evalArea"></div>
+      `;
+      if (state.evalQuestions) renderEvalArea();
+    }
+
+    async function prepareEval(count) {
+      const area = document.getElementById('evalArea');
+      area.innerHTML = `<div class="alert">Génération de l'évaluation... Patientez.</div>`;
+      try {
+        const parsed = generateLocalEval(state.selectedSubject, state.selectedLevel, count);
+        state.evalQuestions = parsed.questions;
+        state.evalAnswers = {};
+        state.evalScore = null;
+        renderEvalArea();
+      } catch (error) {
+        area.innerHTML = `<div class="alert">Impossible de générer l'évaluation. Réessaie plus tard.</div>`;
+      }
+    }
+
+    function renderEvalArea() {
+      if (!state.evalQuestions || !state.evalQuestions.length) {
+        document.getElementById('evalArea').innerHTML = '<div class="alert">Aucune évaluation disponible.</div>';
+        return;
+      }
+      const list = state.evalQuestions.map((item, index) => `
+        <div class="section-card">
+          <h3>Question ${index + 1}</h3>
+          <p>${item.question}</p>
+          <textarea placeholder="Ta réponse" oninput="state.evalAnswers[${index}] = this.value">${escapeHtml(state.evalAnswers[index] || '')}</textarea>
+        </div>
+      `).join('');
+      const area = document.getElementById('evalArea');
+      if (area) {
+        area.innerHTML = `
+          ${list}
+          <button type="button" onclick="gradeEval()">Corriger et noter</button>
+          ${state.evalScore !== null ? `<div class="section-card center"><h3>Note /20</h3><p class="badge">${state.evalScore}/20</p><p>${state.evalAppreciation}</p></div>` : ''}
+        `;
+      }
+    }
+
+    async function gradeEval() {
+      const answers = state.evalQuestions.map((item, index) => ({ question: item.question, correct: item.answer, student: state.evalAnswers[index] || '' }));
+      const area = document.getElementById('evalArea');
+      area.innerHTML = `<div class="alert">Correction en cours... Patientez.</div>`;
+      try {
+        const parsed = gradeEvalLocal(answers);
+        state.evalScore = parsed.score;
+        state.evalAppreciation = parsed.appreciation || 'Très bien.';
+        state.progress.history.unshift({ type: 'Évaluation', subject: state.selectedSubject, level: state.selectedLevel, score: parsed.score, total: 20, date: new Date().toLocaleString() });
+        if (state.progress.history.length > 12) state.progress.history.pop();
+        saveProgress();
+        renderEvalArea();
+      } catch (error) {
+        area.innerHTML = `<div class="alert">Impossible de corriger l'évaluation. Réessaie plus tard.</div>`;
+      }
+    }
+
+    function renderAssistantPage() {
+      const premium = state.adminMode;
+      appContent.innerHTML = `
+        <div class="section-card hero-card">
+          <span class="hero-badge">Assistant devoirs</span>
+          <h1>Besoin d’aide pour ton travail ?</h1>
+          <p class="subtitle">Choisis un mode pour obtenir une explication, un indice, une correction ou des étapes claires.</p>
+        </div>
+        <div class="section-card">
+          <div class="button-grid two">
+            <button onclick="selectAssistantMode('expliquer')">Expliquer</button>
+            <button onclick="selectAssistantMode('indice')">Indice</button>
+            <button onclick="selectAssistantMode('corriger')">Corriger</button>
+            <button onclick="selectAssistantMode('etapes')">Étapes</button>
+          </div>
+          ${premium ? `<div class="premium-banner"><span class="gold-dot"></span><div><strong>Admin Premium</strong><br>Accès illimité aux devoirs.</div></div>` : `<div class="premium-banner"><span class="gold-dot"></span><div><strong>Mode Premium</strong><br>Débloquez l’accès complet.</div></div>`}
+          ${premium ? '<button onclick="assistantPremiumTask()">✨ Faire mon devoir à ma place</button>' : '<button onclick="openPaymentModal()">Débloquer — 0,50€</button>'}
+        </div>
+        <div class="section-card">
+          <textarea id="assistantInput" placeholder="Pose ta question ou colle ton exercice ici..."></textarea>
+          <button onclick="sendAssistant()">Envoyer</button>
+        </div>
+        <div id="assistantHistory"></div>
+      `;
+      renderAssistantHistory();
+    }
+
+    function selectAssistantMode(mode) {
+      state.assistantMode = mode;
+      alert('Mode assistant : ' + mode);
+    }
+
+    async function sendAssistant() {
+      const input = document.getElementById('assistantInput').value.trim();
+      if (!input) return alert('Écris d’abord ta question.');
+      const mode = state.assistantMode || 'expliquer';
+      const history = state.assistantHistory;
+      history.unshift({ user: input, mode, response: '...' });
+      renderAssistantHistory();
+      const reply = assistantLocal(mode, input);
+      history[0].response = reply;
+      renderAssistantHistory();
+    }
+
+    function assistantPremiumTask() {
+      const input = prompt('Colle ton devoir ou ta consigne ici :');
+      if (!input) return;
+      const reply = assistantLocal('premium', input);
+      state.assistantHistory.unshift({ user: input, mode: 'premium', response: reply });
+      renderAssistantHistory();
+    }
+
+    function renderAssistantHistory() {
+      const historyHtml = state.assistantHistory.map(entry => `
+        <div class="section-card">
+          <p><strong>Toi (${entry.mode}) :</strong> ${escapeHtml(entry.user)}</p>
+          <p><strong>Réponse IA :</strong></p>
+          <p>${escapeHtml(entry.response)}</p>
+        </div>
+      `).join('');
+      const container = document.getElementById('assistantHistory');
+      if (container) container.innerHTML = historyHtml;
+    }
+
+    function renderProgressPage() {
+      const stats = state.progress.stats;
+      const average = stats.quizCompleted ? Math.round((stats.scoreTotal / stats.quizCompleted) * 100) / 100 : 0;
+      appContent.innerHTML = `
+        <div class="section-card hero-card">
+          <span class="hero-badge">Suivi de progression</span>
+          <h1>Ton historique Révizio</h1>
+          <p class="subtitle">Consulte tes scores, tes fiches créées et ton meilleur résultat en un seul endroit.</p>
+        </div>
+        <div class="section-card">
+          <div class="result-line"><span>Quiz complétés</span><strong>${stats.quizCompleted}</strong></div>
+          <div class="result-line"><span>Score moyen</span><strong>${average}</strong></div>
+          <div class="result-line"><span>Meilleur score</span><strong>${stats.bestScore}</strong></div>
+          <div class="result-line"><span>Fiches générées</span><strong>${stats.fichesGenerated}</strong></div>
+        </div>
+        <div class="section-card">
+          <h3>Historique récent</h3>
+          ${state.progress.history.length ? state.progress.history.map(item => `
+            <div class="result-line"><span>${item.type}</span><strong>${item.score !== undefined ? item.score + '/' + (item.total || '') : item.subject}</strong></div>
+            <p class="small-note">${item.level} • ${item.date}</p>
+          `).join('') : '<p>Aucun résultat enregistré.</p>'}
+        </div>
+      `;
+    }
+
+    function openAdminModal() {
+      modalBody.innerHTML = `
+        <p>Entrez le mot de passe admin pour activer le mode Premium.</p>
+        <input id="adminPassword" type="password" placeholder="Mot de passe admin" />
+        <button onclick="confirmAdmin()">Valider</button>
+      `;
+      modalBackdrop.classList.add('active');
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove('active');
+    }
+
+    function confirmAdmin() {
+      const password = document.getElementById('adminPassword').value;
+      if (password === ADMIN_PASSWORD) {
+        state.adminMode = true;
+        localStorage.setItem('revizioAdmin', 'true');
+        closeModal();
+        updateAdminToggle();
+        renderPage();
+      } else {
+        alert('Mot de passe incorrect');
+      }
+    }
+
+    function openPaymentModal() {
+      modalBody.innerHTML = `
+        <div class="premium-banner"><span class="gold-dot"></span><div><strong>Mode Premium</strong><br>Débloque l'accès complet à l'assistant devoirs.</div></div>
+        <p>Paiement : 0,50€</p>
+        <p>Revolut : @révizio</p>
+        <p>Virement bancaire : IBAN à renseigner en message.</p>
+        <button onclick="closeModal()">J'ai payé, fermer</button>
+      `;
+      modalBackdrop.classList.add('active');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML.replace(/\n/g, '<br>');
+    }
+
+    window.selectPage = selectPage;
+    window.selectLevel = selectLevel;
+    window.selectSubject = selectSubject;
+    window.prepareQuiz = prepareQuiz;
+    window.answerQuiz = answerQuiz;
+    window.quizNext = quizNext;
+    window.generateFiche = generateFiche;
+    window.generateFlashcards = generateFlashcards;
+    window.flashcardAnswer = flashcardAnswer;
+    window.flashcardNext = flashcardNext;
+    window.prepareEval = prepareEval;
+    window.gradeEval = gradeEval;
+    window.sendAssistant = sendAssistant;
+    window.openAdminModal = openAdminModal;
+    window.confirmAdmin = confirmAdmin;
+    window.openPaymentModal = openPaymentModal;
+    window.assistantPremiumTask = assistantPremiumTask;
+    window.selectAssistantMode = selectAssistantMode;
+
+    init();
+  </script>
+</body>
+</html>
